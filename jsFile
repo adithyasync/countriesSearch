@@ -1,0 +1,76 @@
+let userInputElement = document.getElementById("searchInput");
+let resultContainer = document.getElementById("resultCountries");
+let spinnerElement = document.getElementById("spinner");
+
+function createAndAddCountries(eachArray) {
+    let contE = document.createElement("div");
+    contE.classList.add("country-card", "col-12", "col-md-5", "d-flex", "flex-row");
+
+    let flag = document.createElement("img");
+    flag.src = eachArray.flag;
+    flag.classList.add("country-flag");
+    contE.appendChild(flag);
+
+    let textCont = document.createElement("div");
+    textCont.classList.add("text-container");
+
+    let counteryName = document.createElement("h1");
+    counteryName.textContent = eachArray.name;
+    counteryName.classList.add("country-name");
+    textCont.appendChild(counteryName);
+
+    let countryPopulation = document.createElement("p");
+    countryPopulation.textContent = eachArray.population;
+    countryPopulation.classList.add("country-population");
+    textCont.appendChild(countryPopulation);
+
+    contE.appendChild(textCont);
+    resultContainer.appendChild(contE);
+}
+
+function eachArray(jsonData) {
+    for (let eachArray of jsonData) {
+        createAndAddCountries(eachArray);
+    }
+}
+
+function makeHTTPRequest() {
+    spinnerElement.classList.toggle("d-none");
+    let options = {
+        method: "GET"
+    };
+    let url = "https://apis.ccbp.in/countries-data";
+    fetch(url, options)
+        .then(function(response) {
+            return response.json();
+        })
+        .then(function(jsonData) {
+            spinnerElement.classList.toggle("d-none");
+            eachArray(jsonData);
+        });
+}
+
+makeHTTPRequest();
+
+function searchCountries(event) {
+    resultContainer.textContent = "";
+    let options = {
+        method: "GET"
+    };
+    let url = "https://apis.ccbp.in/countries-data";
+    fetch(url, options)
+        .then(function(response) {
+            return response.json();
+        })
+        .then(function(jsonData) {
+            let userInputValue = userInputElement.value;
+            for (let eachArray of jsonData) {
+                let eachArrayName = eachArray.name;
+                if (eachArrayName.toLowerCase().includes(userInputValue.toLowerCase())) {
+                    createAndAddCountries(eachArray);
+                }
+            }
+        });
+}
+
+userInputElement.addEventListener("keydown", searchCountries);
